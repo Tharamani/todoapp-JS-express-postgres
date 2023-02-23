@@ -3,7 +3,6 @@ const { getTodoModel, createTodoModel, updateTodoModel, deleteTodoModel } = requ
 // Get todo
 const getTodo = async (req, res) => {
   try {
-    res.header('Access-Control-Allow-Origin', '*')
     const response = await getTodoModel()
     console.log('getTodo controller response >>>>>>>>>>> ', response)
     return res.status(200).json(response)
@@ -15,18 +14,17 @@ const getTodo = async (req, res) => {
 // Create todo
 const createTodo = async (req, res) => {
   try {
-    let { todoText, todoNote, dueDate, priority, isChecked } = req.body
-    if (!dueDate) dueDate = new Date()
-    if (!todoText || typeof todoText !== 'string') return res.status(400).json({ message: 'Bad request' })
+    const { title, notes, priority } = req.body
+    console.log('req.body', req.body)
 
-    const response = await createTodoModel(todoText, todoNote, dueDate, priority, isChecked)
+    if (!title || typeof title !== 'string') return res.status(400).json({ message: 'Bad request' })
+
+    const response = await createTodoModel(title, notes, req.body.due_date, priority, req.body.is_checked)
     console.log('createTodo controller response >>>>>>>>>>> ', response)
 
     return res.status(201).json({
       message: 'Todo created successfully!',
-      data: {
-        todo: response[0]
-      }
+      todo: response[0]
     })
   } catch (error) {
     return res.status(500).json({ message: error.message })
@@ -36,17 +34,17 @@ const createTodo = async (req, res) => {
 // Edit todo
 const editTodo = async (req, res) => {
   try {
-    const { todoText, todoNote, dueDate, priority, isChecked } = req.body
-    const response = await updateTodoModel(req.params.id, todoText, todoNote, dueDate, priority, isChecked)
+    console.log('editTodo', req.body)
+
+    const { title, notes, priority } = req.body
+    const response = await updateTodoModel(req.params.id, title, notes, req.body.due_date, priority, req.body.is_checked)
     console.log('editTodo controller response >>>>>>>>>>> ', response)
 
     if (!response[0]) return res.status(404).json({ message: 'Resource Not found' })
 
     return res.status(200).json({
       message: 'Todo updated successfully!',
-      data: {
-        todo: response[0]
-      }
+      todo: response[0]
     })
   } catch (error) {
     return res.status(500).json({ message: error.message })
