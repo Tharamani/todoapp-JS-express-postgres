@@ -8,5 +8,5 @@ const craeteTodoTable = `CREATE TABLE todoschema.todo (
      notes TEXT,
     due_date VARCHAR,
     priority VARCHAR,
-    is_checked BOOLEAN DEFAULT 'false' 
+    is_checked BOOLEAN DEFAULT 'false'
 );`

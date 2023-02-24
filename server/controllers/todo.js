@@ -1,4 +1,4 @@
-const { getTodoModel, createTodoModel, updateTodoModel, deleteTodoModel } = require('../models/todo')
+const { getTodoModel, createTodoModel, updateTodoModel, deleteTodoModel, showDoneModel, deleteDoneModel, deleteAllModel } = require('../models/todo')
 
 // Get todo
 const getTodo = async (req, res) => {
@@ -72,4 +72,57 @@ const deleteTodo = async (req, res) => {
   }
 }
 
-module.exports = { createTodo, getTodo, editTodo, deleteTodo }
+// Show done
+const showDone = async (req, res) => {
+  try {
+    const response = await showDoneModel()
+    console.log('showDone controller response >>>>>>>>>>> ', response)
+
+    return res.status(200).json(response)
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
+// Delete todo
+const deleteDone = async (req, res) => {
+  try {
+    console.log('deleteDone')
+    const response = await deleteDoneModel()
+    console.log('deleteTodo controller response >>>>>>>>>>> ', response, response < 0)
+
+    if (response === 0) {
+      return res.status(200).json({
+        message: 'No data to delete done'
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Todo done deleted successfully!'
+    })
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
+// Delete all
+const deleteAll = async (req, res) => {
+  try {
+    const response = await deleteAllModel()
+    console.log('deleteAll controller response >>>>>>>>>>> ', response, response < 0, response === 0)
+
+    if (response === 0) {
+      return res.status(200).json({
+        message: 'No data to delete '
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Todo all done deleted successfully!'
+    })
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
+module.exports = { createTodo, getTodo, editTodo, deleteTodo, showDone, deleteDone, deleteAll }

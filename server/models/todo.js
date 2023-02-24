@@ -45,4 +45,26 @@ const getTodoByIdTodo = async (id) => {
   return result.rowCount
 }
 
-module.exports = { createTodoModel, getTodoModel, updateTodoModel, deleteTodoModel, getTodoByIdTodo }
+const showDoneModel = async () => {
+  const showDoneQuery = `SELECT * FROM todoschema.todo
+  WHERE is_checked = 'true' ORDER BY todo_id;`
+  const result = await client.query(showDoneQuery)
+  if (result.rows) return result.rows
+  throw new Error('Failed to get todos')
+}
+
+const deleteDoneModel = async () => {
+  console.log('deleteDoneModel')
+  const deleteDoneQuery = `DELETE FROM todoschema.todo
+  WHERE is_checked = true;`
+  const result = await client.query(deleteDoneQuery)
+  return result.rowCount
+}
+
+const deleteAllModel = async () => {
+  const deleteAllQuery = 'DELETE FROM todoschema.todo;'
+  const result = await client.query(deleteAllQuery)
+  return result.rowCount
+}
+
+module.exports = { createTodoModel, getTodoModel, updateTodoModel, deleteTodoModel, getTodoByIdTodo, showDoneModel, deleteDoneModel, deleteAllModel }
