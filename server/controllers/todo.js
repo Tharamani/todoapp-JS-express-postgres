@@ -17,6 +17,7 @@ const createTodo = async (req, res) => {
     const { title, notes, priority } = req.body
     console.log('req.body', req.body)
 
+    // create validation function
     if (!title || typeof title !== 'string') return res.status(400).json({ message: 'Bad request' })
 
     const response = await createTodoModel(title, notes, req.body.due_date, priority, req.body.is_checked)
@@ -27,7 +28,7 @@ const createTodo = async (req, res) => {
       todo: response[0]
     })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    return res.status(500).json({ message: error.message })// log
   }
 }
 
@@ -40,6 +41,7 @@ const editTodo = async (req, res) => {
     const response = await updateTodoModel(req.params.id, title, notes, req.body.due_date, priority, req.body.is_checked)
     console.log('editTodo controller response >>>>>>>>>>> ', response)
 
+    // validate fields
     if (!response[0]) return res.status(404).json({ message: 'Resource Not found' })
 
     return res.status(200).json({
@@ -72,7 +74,7 @@ const deleteTodo = async (req, res) => {
   }
 }
 
-// Show done
+// Show done  // renmae getDone
 const showDone = async (req, res) => {
   try {
     const response = await showDoneModel()
