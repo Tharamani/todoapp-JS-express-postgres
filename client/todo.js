@@ -13,41 +13,40 @@ const createText = (todo) => {
     editItem.style.display === 'block' ? editItem.style.display = 'none' : editItem.style.display = 'block'
   })
 
-  inputText.addEventListener('change', (event) => {
+  inputText.addEventListener('change', async (event) => {
     todo.title = event.target.value
-    updateTodo(todo).then(response => {
-      response.todo.title = event.target.value
-    }).catch(error => {
-      console.log('createText error', error)
-    })
+    try {
+      const data = await updateTodo(todo) // api call
+      data.todo.title = event.target.value
+    } catch (error) {
+      console.log('Error ', error.cause)
+    }
   })
 
   return inputText
 }
 
 const createCheckbox = (todo) => {
-  console.log('todo : createCheckbox', todo)
   const inputCheckbox = document.createElement('input')
 
   inputCheckbox.setAttribute('class', 'checkbox')
   inputCheckbox.setAttribute('type', 'checkbox')
   inputCheckbox.checked = todo.is_checked
 
-  inputCheckbox.addEventListener('change', () => {
+  inputCheckbox.addEventListener('change', async () => {
     todo.is_checked = inputCheckbox.checked
-    updateTodo(todo).then(response => {
-      response.todo.is_checked = inputCheckbox.checked
-    }).catch(error => {
-      console.log('createCheckbox error', error)
-    })
+    try {
+      const data = await updateTodo(todo) // api call
+      data.todo.is_checked = inputCheckbox.checked
+    } catch (error) {
+      console.log('Error ', error.cause)
+    }
   })
 
   return inputCheckbox
 }
 
 const createTodoItem = (todo) => {
-  console.log('createTodoItem ', todo)
-
   const todoItem = document.createElement('div')
   todoItem.setAttribute('id', todo.todo_id)
   todoItem.setAttribute('class', 'todo-item')
@@ -65,34 +64,35 @@ const createTextArea = (todo) => {
   textArea.setAttribute('placeholder', 'Notes')
   textArea.value = todo.notes ? todo.notes : textArea.value = ''
 
-  textArea.addEventListener('change', (event) => {
+  textArea.addEventListener('change', async (event) => {
     todo.notes = event.target.value
-    updateTodo(todo).then(response => {
-      response.todo.notes = event.target.value
-    }).catch(error => {
-      console.log('createTextArea error', error)
-    })
+    try {
+      const data = await updateTodo(todo) // api call
+      data.todo.notes = event.target.value
+    } catch (error) {
+      console.log('Error ', error.cause)
+    }
   })
 
   return textArea
 }
 
 const createDateTime = (todo) => {
-  console.log('createDateTime', todo)
   const inputDateTime = document.createElement('input')
 
   inputDateTime.setAttribute('id', 'date-time')
   inputDateTime.setAttribute('type', 'datetime-local')
   inputDateTime.setAttribute('value', todo.due_date)
 
-  inputDateTime.addEventListener('change', (event) => {
+  inputDateTime.addEventListener('change', async (event) => {
     todo.due_date = event.target.value
 
-    updateTodo(todo).then(response => {
-      response.due_date = event.target.value
-    }).catch(error => {
-      console.log('createDateTime error', error)
-    })
+    try {
+      const data = await updateTodo(todo) // api call
+      data.due_date = event.target.value
+    } catch (error) {
+      console.log('Error ', error.cause)
+    }
   })
 
   return inputDateTime
@@ -104,19 +104,21 @@ const createDeleteBtn = (todo) => {
   deleteBtn.setAttribute('id', 'delete-todo')
   deleteBtn.textContent = 'Delete'
 
-  deleteBtn.addEventListener('click', () => {
+  deleteBtn.addEventListener('click', async () => {
     const deleteEle = document.getElementById(todo.todo_id)
     deleteEle.remove()
-    deleteTodo(todo).then(response => {
-      console.log('deleteTodo', response.message)
-    })
+    try {
+      const data = await deleteTodo(todo) // api call
+      console.log('deleteTodo', data.message)
+    } catch (error) {
+      console.log('Error ', error.cause)
+    }
   })
 
   return deleteBtn
 }
 
 const createPriorityList = (todo) => {
-  console.log('createPriorityList', todo)
   const priorityList = document.createElement('select')
   priorityList.setAttribute('id', 'select')
   // Create array of options to be added
@@ -132,14 +134,15 @@ const createPriorityList = (todo) => {
 
   priorityList.value = todo.priority ? todo.priority : 'Select'
 
-  priorityList.addEventListener('change', (event) => {
+  priorityList.addEventListener('change', async (event) => {
     todo.priority = event.target.value
 
-    updateTodo(todo).then(response => {
-      response.todo.due_date = event.target.value
-    }).catch(error => {
-      console.log('createPriorityList error', error)
-    })
+    try {
+      const data = await updateTodo(todo) // api call
+      data.todo.priority = event.target.value
+    } catch (error) {
+      console.log('Error ', error.cause)
+    }
   })
 
   return priorityList
@@ -151,46 +154,38 @@ const createLabel = (text) => {
   return sLabel
 }
 
-let todos = []
-
 const createFilterList = () => {
-  console.log('createFilterList')
   const filterList = document.createElement('select')
   filterList.setAttribute('id', 'filter')
   // Create array of options to be added
   const filter = ['ShowAll', 'ShowDone']
 
   // Create and append the options
-  for (let i = 0; i < filter.length; i++) {
+  for (let i = 0; i < filter.length; i++) { // foreach
     const option = document.createElement('option')
     option.value = filter[i]
     option.text = filter[i]
     filterList.appendChild(option)
   }
-  // filterList.value = todo.priority ? todo.priority : 'Select'
 
   filterList.addEventListener('change', (event) => {
     if (event.target.value === 'ShowAll') {
       const todoList = document.querySelector('#todo-list')
-      // todoList.innerHTML = ''
 
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
-
-      todos.map(todo => { // using globsl var
-        dispalyTodos(todo)
-      })
+      fetchTodos()
     } else if (event.target.value === 'ShowDone') {
       const todoList = document.querySelector('#todo-list')
-      // todoList.innerHTML = ''
+
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
       showDone().then(data => { // calls api
         console.log('showDone data', data)
-        data.map(todo => {
-          dispalyTodos(todo)
+        data.map(todo => { // rendertodo function
+          dispalyTodo(todo)
         })
       }).catch(error => {
         console.log('showDone error', error)
@@ -245,7 +240,7 @@ const createDeleteDone = () => {
     deleteDone().then(data => { // calls api
       console.log('createDeleteDone data', data.message)
       const todoList = document.querySelector('#todo-list')
-      // todoList.innerHTML = ''
+
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
@@ -260,7 +255,7 @@ const createDeleteDone = () => {
 
 const createDeleteAll = () => {
   const deleteDoneBtn = document.createElement('button')
-  deleteDoneBtn.setAttribute('id', 'delete-all')
+  deleteDoneBtn.setAttribute('id', 'delete-all') // deleteAllBtn
   deleteDoneBtn.setAttribute('type', 'button')
   deleteDoneBtn.innerText = 'Delete All'
 
@@ -268,7 +263,6 @@ const createDeleteAll = () => {
     deleteAll().then(data => { // calls api
       console.log('createDeleteAll data', data.message)
       const todoList = document.querySelector('#todo-list')
-      // todoList.innerHTML = ''
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
@@ -293,40 +287,34 @@ const createEditItem = (todo) => {
   todoItem.appendChild(createDivItem(todo))
 }
 
-export const dispalyTodos = (todo) => {
-  console.log('dispalyTodos', todo.todo_id)
+export const dispalyTodo = (todo) => {
+  console.log('dispalyTodo', todo.todo_id)
   const todoList = document.querySelector('#todo-list')
   todoList.appendChild(createTodoItem(todo))
   createEditItem(todo)
 }
 
 // Get todos from DB and display
-const fetchTodos = () => {
-  getTodos().then(data => {
-    console.log('fetchTodos data', data)
-    todos = data
-    data.map(todo => {
-      dispalyTodos(todo)
-    })
-  }).catch(error => {
-    console.log('todos error', error)
+const fetchTodos = async () => { // rename intialize
+  const data = await getTodos()
+
+  data.map(todo => { // foreach, abstract
+    dispalyTodo(todo)
   })
 }
 
 // Create todo
-const postTodo = (title, notes = '', dueDate = '', priority = '', isChecked = false) => {
+const postTodo = async (title, notes = '', dueDate = '', priority = '', isChecked = false) => {
   const todo = { title, notes, due_date: dueDate, priority, is_checked: isChecked }
-  console.log('postTodo todo: ', todo)
-
-  createTodo(todo).then(response => {
-    dispalyTodos(response.todo)
-  }).catch(error => {
-    console.log('postTodo error ', error.message)
-    return error.message
-  })
+  try {
+    const data = await createTodo(todo) // api call
+    dispalyTodo(data.todo)
+  } catch (error) {
+    console.log('Error ', error.cause)
+  }
 }
 
-const create = () => {
+const create = () => { // rename
   const submitBtn = document.forms['add-todo']
 
   // Submit todo header text

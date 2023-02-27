@@ -8,18 +8,15 @@ const getTodos = async () => {
 }
 
 const createTodo = async (todo) => {
-  const response = await fetch(`${url}/todo`, {
+  const response = await fetch(`${url}/todo`, { // api call
     method: 'POST',
-    body: JSON.stringify({ ...todo })
-    // body: JSON.stringify({ })
+    body: JSON.stringify({ ...todo }) // diff b/w todo and this
   })
-  console.log('response response ', response)
 
-  if (response.status !== 201) {
-    return response.statusText
-  }
   const data = await response.json()
-  console.log('response data ', data)
+  if (!response.ok) {
+    throw new Error('Error ', { cause: data.message })
+  }
   return data
 }
 
@@ -28,10 +25,12 @@ const updateTodo = async (todo) => {
     method: 'PUT',
     body: JSON.stringify({ ...todo })
   })
-  if (response.status !== 200) {
-    return response.message
-  }
+
   const data = await response.json()
+  if (!response.ok) {
+    throw new Error('Error ', { cause: data.message })
+  }
+
   return data
 }
 
@@ -39,10 +38,11 @@ const deleteTodo = async (todo) => {
   const response = await fetch(`${url}/todo/${todo.todo_id}`, {
     method: 'DELETE'
   })
-  if (response.status !== 200) {
-    return response.message
-  }
   const data = await response.json()
+  if (!response.ok) {
+    throw new Error('Error ', { cause: data.message })
+  }
+
   return data
 }
 
@@ -58,9 +58,6 @@ const deleteDone = async () => {
   const response = await fetch(`${url}/todo/deletedone`, {
     method: 'DELETE'
   })
-  // if (response.status !== 200) {
-  //   return response.message
-  // }
   const data = await response.json()
   return data
 }
@@ -69,9 +66,6 @@ const deleteAll = async () => {
   const response = await fetch(`${url}/todo/deleteall`, {
     method: 'DELETE'
   })
-  // if (response.status !== 200) {
-  //   return response.message
-  // }
   const data = await response.json()
   return data
 }
