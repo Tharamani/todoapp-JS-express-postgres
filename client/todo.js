@@ -125,12 +125,19 @@ const createPriorityList = (todo) => {
   const prority = ['Select', 'High', 'Medium', 'Low']
 
   // Create and append the options
-  for (let i = 0; i < prority.length; i++) {
+  // for (let i = 0; i < prority.length; i++) {
+  //   const option = document.createElement('option')
+  //   option.value = prority[i]
+  //   option.text = prority[i]
+  //   priorityList.appendChild(option)
+  // }
+
+  prority.forEach(element => {
     const option = document.createElement('option')
-    option.value = prority[i]
-    option.text = prority[i]
-    priorityList.appendChild(option)
-  }
+      option.value = element[i]
+      option.text = element[i]
+      priorityList.appendChild(option)
+  })
 
   priorityList.value = todo.priority ? todo.priority : 'Select'
 
@@ -161,11 +168,23 @@ const createFilterList = () => {
   const filter = ['ShowAll', 'ShowDone']
 
   // Create and append the options
-  for (let i = 0; i < filter.length; i++) { // foreach
-    const option = document.createElement('option')
-    option.value = filter[i]
-    option.text = filter[i]
+  // for (let i = 0; i < filter.length; i++) { // foreach
+  //   const option = document.createElement('option')
+  //   option.value = filter[i]
+  //   option.text = filter[i]
+  //   filterList.appendChild(option)
+  // }
+
+  filter.forEach(element => {// foreach
+    option.value = element[i]
+    option.text = element[i]
     filterList.appendChild(option)
+  })
+
+  const renderTodo = (todos) => {
+    todos.forEach(todo => { // rendertodo function
+      dispalyTodo(todo)
+    })
   }
 
   filterList.addEventListener('change', (event) => {
@@ -175,7 +194,7 @@ const createFilterList = () => {
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
-      fetchTodos()
+      intialize()
     } else if (event.target.value === 'ShowDone') {
       const todoList = document.querySelector('#todo-list')
 
@@ -184,9 +203,10 @@ const createFilterList = () => {
       }
       showDone().then(data => { // calls api
         console.log('showDone data', data)
-        data.map(todo => { // rendertodo function
-          dispalyTodo(todo)
-        })
+        renderTodo(data)
+        // data.map(todo => { // rendertodo function
+        //   dispalyTodo(todo)
+        // })
       }).catch(error => {
         console.log('showDone error', error)
       })
@@ -244,7 +264,7 @@ const createDeleteDone = () => {
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
-      fetchTodos() // calls api
+      intialize() // calls api
     }).catch(error => {
       console.log('createDeleteDone error', error)
     })
@@ -254,19 +274,19 @@ const createDeleteDone = () => {
 }
 
 const createDeleteAll = () => {
-  const deleteDoneBtn = document.createElement('button')
-  deleteDoneBtn.setAttribute('id', 'delete-all') // deleteAllBtn
-  deleteDoneBtn.setAttribute('type', 'button')
-  deleteDoneBtn.innerText = 'Delete All'
+  const deleteAllBtn = document.createElement('button')
+  deleteAllBtn.setAttribute('id', 'delete-all') // deleteAllBtn
+  deleteAllBtn.setAttribute('type', 'button')
+  deleteAllBtn.innerText = 'Delete All'
 
-  deleteDoneBtn.addEventListener('click', () => {
+  deleteAllBtn.addEventListener('click', () => {
     deleteAll().then(data => { // calls api
       console.log('createDeleteAll data', data.message)
       const todoList = document.querySelector('#todo-list')
       while (todoList.hasChildNodes()) {
         todoList.removeChild(todoList.lastChild)
       }
-      fetchTodos() // calls api
+      intialize() // calls api
     }).catch(error => {
       console.log('createDeleteAll error', error)
     })
@@ -295,12 +315,9 @@ export const dispalyTodo = (todo) => {
 }
 
 // Get todos from DB and display
-const fetchTodos = async () => { // rename intialize
+const intialize = async () => { // rename intialize
   const data = await getTodos()
-
-  data.map(todo => { // foreach, abstract
-    dispalyTodo(todo)
-  })
+  renderTodo(data)
 }
 
 // Create todo
@@ -314,7 +331,7 @@ const postTodo = async (title, notes = '', dueDate = '', priority = '', isChecke
   }
 }
 
-const create = () => { // rename
+const createTitle = () => { // rename
   const submitBtn = document.forms['add-todo']
 
   // Submit todo header text
@@ -330,8 +347,8 @@ const create = () => { // rename
 
 const app = () => {
   try {
-    fetchTodos()
-    create()
+    intialize()
+    createTitle()
     createFooter()
   } catch (error) {
     console.log('error : ', error)
