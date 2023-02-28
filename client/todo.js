@@ -1,5 +1,11 @@
 import { getTodos, createTodo, updateTodo, deleteTodo, showDone, deleteDone, deleteAll } from './fetchapi.js'
 
+const renderTodo = (todos) => {
+  todos.forEach(todo => { // rendertodo function
+    dispalyTodo(todo)
+  })
+}
+
 const createText = (todo) => {
   const inputText = document.createElement('input')
 
@@ -134,8 +140,8 @@ const createPriorityList = (todo) => {
 
   prority.forEach(element => {
     const option = document.createElement('option')
-      option.value = element[i]
-      option.text = element[i]
+      option.value = element
+      option.text = element
       priorityList.appendChild(option)
   })
 
@@ -176,16 +182,13 @@ const createFilterList = () => {
   // }
 
   filter.forEach(element => {// foreach
-    option.value = element[i]
-    option.text = element[i]
+    const option = document.createElement('option')
+    option.value = element
+    option.text = element
     filterList.appendChild(option)
   })
 
-  const renderTodo = (todos) => {
-    todos.forEach(todo => { // rendertodo function
-      dispalyTodo(todo)
-    })
-  }
+  
 
   filterList.addEventListener('change', (event) => {
     if (event.target.value === 'ShowAll') {
@@ -292,7 +295,7 @@ const createDeleteAll = () => {
     })
   })
 
-  return deleteDoneBtn
+  return deleteAllBtn
 }
 
 const createFooter = () => {
@@ -317,6 +320,7 @@ export const dispalyTodo = (todo) => {
 // Get todos from DB and display
 const intialize = async () => { // rename intialize
   const data = await getTodos()
+  console.log('data', data)
   renderTodo(data)
 }
 
@@ -324,7 +328,9 @@ const intialize = async () => { // rename intialize
 const postTodo = async (title, notes = '', dueDate = '', priority = '', isChecked = false) => {
   const todo = { title, notes, due_date: dueDate, priority, is_checked: isChecked }
   try {
+    console.log('postTodo todo', todo)
     const data = await createTodo(todo) // api call
+    console.log('postTodo data', data)
     dispalyTodo(data.todo)
   } catch (error) {
     console.log('Error ', error.cause)

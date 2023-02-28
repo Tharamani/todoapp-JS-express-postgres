@@ -14,6 +14,7 @@ const createTodo = async (todo) => {
   })
 
   const data = await response.json()
+  console.log('fetchapi createTodo : ', data)
   if (!response.ok) {
     throw new Error('Error ', { cause: data.message })
   }
