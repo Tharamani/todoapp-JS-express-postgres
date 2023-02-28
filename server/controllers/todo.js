@@ -1,11 +1,12 @@
-const { getTodoModel, createTodoModel, updateTodoModel, deleteTodoModel, showDoneModel, deleteDoneModel, deleteAllModel } = require('../models/todo')
+const { getTodoModel, createTodoModel, updateTodoModel, deleteTodoModel, showDoneModel, deleteDoneModel, deleteAllModel, getTodoByIdTodo} = require('../models/todo')
 
 // Get todo
 const getTodo = async (req, res) => {
   try {
     const response = await getTodoModel()
     console.log('getTodo controller response >>>>>>>>>>> ', response)
-    return res.status(200).json(response)
+    // return res.status(200).json(response)
+    return res.json(response) // 200 status is default
   } catch (error) {
     return res.status(500).json({ message: error.message })
   }
@@ -28,28 +29,32 @@ const createTodo = async (req, res) => {
       todo: response[0]
     })
   } catch (error) {
-    return res.status(500).json({ message: error.message })// log
+    //return res.status(500).json({ message: error.message })// log
+    console.log('Error creating todo : ', error.message)
   }
 }
 
 // Edit todo
 const editTodo = async (req, res) => {
   try {
-    console.log('editTodo', req.body)
+    const id = req.params.id
+    console.log('editTodo', req.body, req.params.id)
 
     const { title, notes, priority } = req.body
-    const response = await updateTodoModel(req.params.id, title, notes, req.body.due_date, priority, req.body.is_checked)
-    console.log('editTodo controller response >>>>>>>>>>> ', response)
+    console.log('editTodo', req.body, id, await getTodoByIdTodo(req.params.id) === 1)
+    if(await getTodoByIdTodo(id) === 1){
+      const response = await updateTodoModel(id, title, notes, req.body.due_date, priority, req.body.is_checked)
+      console.log('editTodo controller response >>>>>>>>>>> ', response)
 
-    // validate fields
-    if (!response[0]) return res.status(404).json({ message: 'Resource Not found' })
-
-    return res.status(200).json({
+    return res.json({
       message: 'Todo updated successfully!',
-      todo: response[0]
+      todo: response
     })
+    }
+    return res.status(404).json({ message: 'Resource Not found' })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    // return res.status(500).json({ message: error.message })
+    console.log('Error updating todo : ', error.message)
   }
 }
 
@@ -57,20 +62,23 @@ const editTodo = async (req, res) => {
 const deleteTodo = async (req, res) => {
   try {
     const id = req.params.id
-    const response = await deleteTodoModel(id)
-    console.log('deleteTodo controller response >>>>>>>>>>> ', response)
+    console.log('deleteTodo', id, await getTodoByIdTodo(id) === 1)
+    // console.log('deleteTodo', id, await getTodoByIdTodo(req.params.id) === 1)
+    if(await getTodoByIdTodo(id) === 1){
+      const response = await deleteTodoModel(id)
+      console.log('deleteTodo controller response >>>>>>>>>>> ', response)
 
-    if (response === 0) {
-      return res.status(404).json({
-        message: 'Resource Not found'
+      return res.json({
+        message: 'Todo deleted successfully!'
       })
     }
-
-    return res.status(200).json({
-      message: 'Todo deleted successfully!'
+    return res.status(404).json({
+      message: 'Resource Not found'
     })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    // return res.status(500).json({ message: error.message })
+    console.log('Error deleteTodo todo : ', error.message)
+
   }
 }
 

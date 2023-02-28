@@ -14,9 +14,9 @@ const createTodoModel = async (title, notes, dueDate, priority, isChecked) => {
   const values = [title, notes, dueDate, priority, isChecked]
   const result = await client.query(createQuery, values)
   console.log('createTodoModel: result ', result)
-  if (result.rowCount === 1) return [result.rows[0], null]
-  // return [null] // [null, error message]
-  // throw new Error('Failed to create todo') //
+  if (result.rowCount !== 1) throw new Error('Failed to create todo') //
+  return result.rows[0]
+  
 }
 
 // change for update
@@ -25,21 +25,28 @@ const updateTodoModel = async (id, title, notes, dueDate, priority, isChecked) =
   const updateQuery = 'UPDATE todoschema.todo SET  title = $2, notes = $3, due_date = $4, priority = $5, is_checked = $6 WHERE todo_id = $1 RETURNING *'
 
   const result = await client.query(updateQuery, values)
-  if (result.rowCount === 1) if (result.rowCount === 1) return [result.rows[0], null]
-  return [null]
+  if (result.rowCount !== 1) throw new Error('Failed to update todo') //
+  return result.rows[0]
+  
 }
 
 const deleteTodoModel = async (id) => {
   const deleteQuery = `DELETE FROM todoschema.todo
     WHERE todo_id = ${id};`
   const result = await client.query(deleteQuery)
-  return result.rowCount // throw error
+  console.log('deleteTodoModel: result ', result)
+  if (result.rowCount !== 1) throw new Error('Failed to delete todo') //
+  return result.rowCount
+  // return result.rowCount // throw error
+  
 }
 
 const getTodoByIdTodo = async (id) => {
   const getByIdQuery = `SELECT FROM todoschema.todo
     WHERE todo_id = ${id};`
   const result = await client.query(getByIdQuery)
+  if (result.rowCount !== 1) throw new Error('Resource not found') //
+  // console.log('getTodoByIdTodo', result)
   return result.rowCount
 }
 
@@ -56,13 +63,19 @@ const deleteDoneModel = async () => {
   const deleteDoneQuery = `DELETE FROM todoschema.todo
   WHERE is_checked = true;`
   const result = await client.query(deleteDoneQuery)
-  return result.rowCount
+  // return result.rowCount
+  if (result.rowCount >= 0) return result.rowCount
+  // return result.rowCount // throw error
+  throw new Error('Failed to delete done todos') //
 }
 
 const deleteAllModel = async () => {
   const deleteAllQuery = 'DELETE FROM todoschema.todo;'
   const result = await client.query(deleteAllQuery)
-  return result.rowCount
+  // return result.rowCount
+  if (result.rowCount >= 0) return result.rowCount
+  // return result.rowCount // throw error
+  throw new Error('Failed to delete all todos') //
 }
 
 module.exports = { createTodoModel, getTodoModel, updateTodoModel, deleteTodoModel, getTodoByIdTodo, showDoneModel, deleteDoneModel, deleteAllModel }
