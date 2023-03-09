@@ -10,7 +10,8 @@ const getTodos = async () => {
 const createTodo = async (todo) => {
   const response = await fetch(`${url}/todo`, { // api call
     method: 'POST',
-    body: JSON.stringify({ ...todo }) // diff b/w todo and this
+    // body: JSON.stringify({ ...todo }) // diff b/w todo and this
+    body: JSON.stringify(todo) 
   })
 
   const data = await response.json()
